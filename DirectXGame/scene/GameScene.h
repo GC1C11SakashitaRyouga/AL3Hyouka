@@ -10,6 +10,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include"Vector3.h"
+
 // ctl+K+Oでcpp展開
 /// <summary>
 /// ゲームシーン
@@ -53,20 +54,21 @@ public: // メンバ関数
 	// enemyboon
 	void EnemyBorn();
 	float VectorSize(float x, float y, float v, float w);
-	Vector2 Nomalize(float x, float y, float w, float answerX, float answerY);
+	Vector2 Nomalize(float x, float y,float w);
 	/// <summary>
+	//
 	
-
 	/// </summary>
 	/// <returns></returns>
 	/// /// bom
 	void BomMove();
 	void BomBorn();
-	void BomParticle();
+	void ParticleInitilize(float x, float y);
+	void ParticleUpdate(float  x,float y,float z);
 	// 衝突判定
 	void Collision();
 	// 衝突判定(プレイヤーと敵）
-	void CollsionPlayerEnemy();
+	void CollisionPlayerEnemy();
 	// 衝突判定（ビームと敵）
 	void CollisionBeamEnemy();
 	/// <summary>
@@ -100,6 +102,8 @@ private: // メンバ変数
 	uint32_t textureHandleBeam_ = 0;
 	Model* modelBeam_ = nullptr;
 	WorldTransform worldTransformBeam_/*[10]*/;
+	//弾の半径
+	const float BeamR_ = 0.25;
 	int beamFlag_/*[10]*/;
 	int beamTimer_ = 0; // ビーム発射タイマー
 	// エネミー
@@ -110,10 +114,17 @@ private: // メンバ変数
 	float enemySpeed_[10] = {}; // 敵のスピード
 	//ボンバー
 	uint32_t textureHandleBom_ = 0;
+	uint32_t textureHandlekakunin_ = 0;
 	Model* modelBom_ = nullptr;
+	Model* modelkakunin = nullptr;
 	WorldTransform worldTransformBom_[4];
-	int bomFlag_[4] = {};
+	bool bomFlag_[4] = {false};
+	float BomR_ = 0.125;
 	int bomTimer_ = 0;
+	Vector2 touch;
+	float Power[4];
+	float tmpY=0.0f;
+
 	
 	// タイトル(スプライト)
 	uint32_t textureHandleTitle_ = 0;

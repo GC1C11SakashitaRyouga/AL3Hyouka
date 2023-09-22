@@ -69,9 +69,10 @@ void GameScene::Initialize() {
 	//bom
 	textureHandleBom_ = TextureManager::Load("bom.png");
 	modelBom_ = Model::Create();
+	textureHandlekakunin_ = TextureManager::Load("kakunin.png");
+	modelkakunin = Model::Create();
 	for (int i = 0; i < 4; i++) {
-
-		worldTransformBom_[i].scale_ = {0.5f, 0.5f, 0.5f};
+		worldTransformBom_[i].scale_ = {BeamR_, BeamR_,BeamR_};
 		worldTransformBom_[i].Initialize();
 	}
 	// タイトル（スプライト）
@@ -172,7 +173,7 @@ void GameScene::EnemyUpdate() {
 	// 変換行列を更新
 	for (int e = 0; e < 10; e++) {
 
-		worldTransformEnemy_[e].matWorld_ = MakeAffineMatrix(
+		    worldTransformEnemy_[e].matWorld_ = MakeAffineMatrix(
 		    worldTransformEnemy_[e].scale_, worldTransformEnemy_[e].rotation_,
 		    worldTransformEnemy_[e].translation_);
 
@@ -224,25 +225,25 @@ void GameScene::EnemyBorn() {
 	}
 }
 //Vectorの長さ
-float VectorSize(float x, float y,float v,float w ) {
-
-
-	Vector2 VectorSize;
+float GameScene::VectorSize(float x, float y, float v, float w) {
+	Vector2 VectorSize{};
 	VectorSize.x = x - v;
 	VectorSize.y = y - w;
 	float VectorSizeAns = (float)sqrt(VectorSize.x * VectorSize.x + VectorSize.y * VectorSize.y);
 	return VectorSizeAns;
 }
-//正規化　　　VectorSizeをwに入れる
-Vector2 GameScene::Nomalize(float x, float y, float w, float answerX,float answerY)
-{ 
-	
-//正規化
-	answerX = x / w;
-	answerY = y / w;
 
-	return Vector2{answerX, answerY};
+//正規化　　　VectorSizeをwに入れる
+Vector2 GameScene::Nomalize(float x, float y, float w)
+{ 
+	Vector2 answer{};
+	//正規化
+	answer.x= x / w;
+	//ｚ軸用
+	answer.y= y / w;
+	return Vector2{answer.x, answer.y};
 }
+
 
 //pos = Normalize(pos, pos2);
 
@@ -251,30 +252,118 @@ Vector2 GameScene::Nomalize(float x, float y, float w, float answerX,float answe
 //void GameScene::BomBorn() {
 //	for (int a = 0; a < 40; a++) {
 //		
-//			if (beamFlag_[a]==false) {
+//			if(beamFlag_[a]==false) {
 //				worldTransformBom_[a].translation_.z;
 //				worldTransformBom_[a].translation_.x;
 //				beamFlag_[a] = 1;
 //				break;
-//			}
-//
-//		
+//			}	
 //	}
 //}
 
-void GameScene::BomParticle() {
+void GameScene::ParticleInitilize(float x, float y) { 
+	float Speed = 5.0;
+	for (int i = 0; i < 4; i++){
+		const Vector2 tmp = {x,y};
+		if (i == 0){
+			worldTransformBom_[i].translation_.x =
+			    worldTransformBom_[i].translation_.x +
+			    BomR_ * (-1.0f);
+			worldTransformBom_[i].translation_.y =
+			    worldTransformBom_[i].translation_.y +
+			    BomR_ * (-1.0f);
+			
+			Power[i] = VectorSize(
+			    tmp.x, tmp.y, worldTransformBom_[i].translation_.x, worldTransformBom_[i].translation_.y);
+			Nomalize(
+			    worldTransformBom_[i].translation_.x, worldTransformBom_[i].translation_.y,
+			    Power[i]);
+			bomFlag_[i] = true;
+		}
+		 else if (i == 1){
+			worldTransformBom_[i].translation_.x =
+			    worldTransformBom_[i].translation_.x +
+			    BomR_ * (-1.0f);
+			worldTransformBom_[i].translation_.y =
+			    worldTransformBom_[i].translation_.y +
+			    BomR_ * (1.0f);
+			
+			VectorSize(
+			    tmp.x, tmp.y, worldTransformBom_[i].translation_.x, worldTransformBom_[i].translation_.y);
+			Nomalize(
+			    worldTransformBom_[i].translation_.x, worldTransformBom_[i].translation_.y,
+			    Power[i]);
+			bomFlag_[i] = true;
+		
+		}
+		else if (i == 2){
+			worldTransformBom_[i].translation_.x =
+			    worldTransformBom_[i].translation_.x +
+			    BomR_ * (-1.0f);
+			worldTransformBom_[i].translation_.y =
+			    worldTransformBom_[i].translation_.y +
+			    BomR_ * (1.0f);
+			VectorSize(
+			    tmp.x, tmp.y, worldTransformBom_[i].translation_.x,
+			    worldTransformBom_[i].translation_.x);
+			Nomalize(
+			    worldTransformBom_[i].translation_.x, worldTransformBom_[i].translation_.y,
+			    Power[i]);
+			bomFlag_[i] = true;
+			
+		}
+		else if (i == 3){
+			worldTransformBom_[i].translation_.x =
+			    worldTransformBom_[i].translation_.x +
+			    BomR_ * (1.0f);
+			worldTransformBom_[i].translation_.y =
+			    worldTransformBom_[i].translation_.y +
+			    BomR_ * (1.0f);
+			VectorSize(
+			    x, tmp.y, worldTransformBom_[i].translation_.x, worldTransformBom_[i].translation_.y);
+			Nomalize(
+			    worldTransformBom_[i].translation_.x, worldTransformBom_[i].translation_.y,
+			    Power[i]);
+			bomFlag_[i] = true;
 
+		} else {
+			bomFlag_[i] = false;
+		}
+		worldTransformBom_[i].translation_.x *= Speed;
+		worldTransformBom_[i].translation_. y*= Speed;
+		/*if (bomFlag_[i] == true) {
+			continue;
+		}*/
+
+	}
+
+	
+}
+
+// ボムのパーティクルUPd
+void GameScene::ParticleUpdate(float x,float y,float z) {
+	for (int i = 0; i < 4;i++) {
+		worldTransformBom_[i].translation_.x = x;
+		worldTransformBom_[i].translation_.y = y;
+		worldTransformBom_[i].translation_.z = z;
+		// 変換行列を更新
+		worldTransformBom_[i].matWorld_ = MakeAffineMatrix(
+		    worldTransformBom_[i].scale_, worldTransformBom_[i].rotation_,
+		    worldTransformBom_[i].translation_);
+		// 変換行列を定数バッファに転送
+		worldTransformBom_[i].TransferMatrix();
+	}
 }
 
 void GameScene::Collision() {
 
 	// 衝突判定（プレイヤーと敵）
-	CollsionPlayerEnemy();
+	CollisionPlayerEnemy();
 	// 衝突判定（弾と敵）
 	CollisionBeamEnemy();
 }
 
-void GameScene::CollsionPlayerEnemy() {
+void GameScene::CollisionPlayerEnemy() {
 	for (int e = 0; e < 10; e++) {
 		// 敵が存在すれば
 		if (EnemyFlag_[e] == 1) {
@@ -312,9 +401,31 @@ void GameScene::CollisionBeamEnemy() {
 					EnemyFlag_[e] = 0;
 					beamFlag_/*[i]*/ = 0;
 					gameScore_ += 100;
-					//接触点作成
-				    float Length=VectorSize(worldTransformBeam_.translation_.x,);
-				    Vector2 dir=Nomalize();
+				    for (int i = 0; i<4;i++) {
+					// 接触点作成
+					float Length = VectorSize(
+					    worldTransformBeam_.translation_.x, worldTransformBeam_.translation_.z,
+					    worldTransformEnemy_[e].translation_.x,
+					    worldTransformEnemy_[e].translation_.z);
+					// YはZ軸として扱う
+					Vector2 dir = Nomalize(
+					    worldTransformBeam_.translation_.x, worldTransformBeam_.translation_.z,
+					    Length);
+					touch.x = dir.x * BeamR_;
+					touch.y = dir.y * BeamR_;
+					touch.x = worldTransformBeam_.translation_.x + touch.x;
+					touch.y = worldTransformBeam_.translation_.z + touch.y;
+					ParticleUpdate(touch.x,tmpY,touch.y);
+					
+				
+					ParticleInitilize(touch.x, tmpY);
+						if (bomTimer_ >= 25) {
+							bomTimer_++;
+							
+						} else {
+							bomTimer_ = 0;
+						}
+				    }
 				}
 			}
 		//}
@@ -334,20 +445,9 @@ void GameScene::PlayerUpdate() {
 	if (worldTransformPlayer_.translation_.x > 4) {
 		worldTransformPlayer_.translation_.x = 4;
 	}
-	if (input_->PushKey(DIK_UP)) {
-		worldTransformPlayer_.translation_.y += 0.1f;
-	}
-	if (input_->PushKey(DIK_DOWN)) {
-		worldTransformPlayer_.translation_.y -= 0.1f;
-	}
-	if (worldTransformPlayer_.translation_.y < -4) {
-		worldTransformPlayer_.translation_.y = -4;
-	}
-	if (worldTransformPlayer_.translation_.y > 4) {
-		worldTransformPlayer_.translation_.y = 4;
-	}
+	
 	// 変換行列を更新
-	worldTransformPlayer_.matWorld_ = MakeAffineMatrix(
+	    worldTransformPlayer_.matWorld_ = MakeAffineMatrix(
 	    worldTransformPlayer_.scale_, worldTransformPlayer_.rotation_,
 	    worldTransformPlayer_.translation_);
 
@@ -436,17 +536,18 @@ void GameScene::Draw() {
 
 #pragma endregion
 }
-
+//更新処理
 void GameScene::GamePlayUpdate() {
 	PlayerUpdate();
 	BeamUpdate();
 	EnemyUpdate();
+	ParticleUpdate(touch.x,tmpY, touch.y);
 	Collision();
 }
 
 void GameScene::GamePlayDraw3D() {
 	// ステージ
-	modelStage_->Draw(worldTransformStage_, viewProjection_, textureHandleStage_);
+	//modelStage_->Draw(worldTransformStage_, viewProjection_, textureHandleStage_);
 	// プレイヤー
 	modelPlayer_->Draw(worldTransformPlayer_, viewProjection_, textureHandlePlayer_);
 	// ビーム
@@ -454,14 +555,27 @@ void GameScene::GamePlayDraw3D() {
 		if (beamFlag_/*[e]*/ == 1) {
 			modelBeam_->Draw(worldTransformBeam_/*[e]*/, viewProjection_, textureHandleBeam_);
 		}
+
 	//}
 	for (int e = 0; e < 10; e++) {
 
 		// 敵
-		if (!(!EnemyFlag_[e])) {
+		if (!(!EnemyFlag_[e])) 
+		{
 			modelEnemy_->Draw(worldTransformEnemy_[e], viewProjection_, textureHandleEnemy_);
 		}
+		
 	}
+	// ボム
+	for (int i = 0; i < 4; i++) {
+		if (bomFlag_[i] == true) {
+			if (i ==2) {
+				    modelBom_->Draw(worldTransformBom_[i], viewProjection_, textureHandlekakunin_);
+			} else {
+				    modelBom_->Draw(worldTransformBom_[i], viewProjection_, textureHandleBom_);
+			}
+		}
+ 	}
 }
 
 void GameScene::GamePlayDraw2DBack() {
